@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  spark-master:
+    image: bitnami/spark:latest
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - /home/hpc:/data:ro
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      - SPARK_MODE=master
+
+  spark-worker:
+    image: bitnami/spark:latest
+    volumes:
+      - /home/hpc:/data:ro
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://192.168.56.101:7077  # Use IP instead of hostname
+      - SPARK_WORKER_MEMORY=512m # Reduce memory per worker
+      - SPARK_WORKER_CORES=1
